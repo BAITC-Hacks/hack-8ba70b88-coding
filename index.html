@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#153e3a" />
+    <meta name="description" content="Локальный помощник по планированию закупок: расчёт спроса, проверка заказа и экспорт CSV." />
+    <title>Планирование закупок — Электрокомплект</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23153e3a'/%3E%3Cpath d='M23 5L10 23h10l-3 12 14-19H21z' fill='%23d8ee87'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Информация о приложении">
+        <a href="./" class="brand" aria-label="Электрокомплект — главная">
+          <span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 28 32"><path d="M16.9 1 3 19.3h10L10.9 31 25 12.3H15Z" /></svg></span>
+          <span>ЭЛЕКТРО<span class="brand-second">КОМПЛЕКТ</span></span>
+        </a>
+        <div class="sidebar-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+        <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10h16v10H4zM3 10l9-7 9 7M9 20v-6h6v6" /></svg><span>Планирование закупок</span><span class="nav-dot"></span></div>
+        <div class="sidebar-guide">
+          <span class="guide-kicker">ОТ ДАННЫХ К ЗАКАЗУ</span>
+          <p>Решения, у которых<br />есть объяснение.</p>
+          <span class="guide-description">Сезонность, остатки и поставки — в одном расчёте.</span>
+          <div class="abstract-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="sidebar-bottom"><div class="hack-badge">H<span>↗</span></div><div><strong>HackAlem AI</strong><span>Рабочий прототип · MVP</span></div></div>
+      </aside>
+      <div class="workspace">
+        <header class="topbar"><div class="breadcrumb">Закупки <span>/</span> <strong>Планирование</strong></div><span class="local-status"><span></span>Локальная обработка</span></header>
+        <main id="main">
+          <section class="page-heading" aria-labelledby="page-title">
+            <div><div class="eyebrow">УПРАВЛЕНИЕ ПОПОЛНЕНИЕМ</div><h1 id="page-title">Закупки под контролем<span>.</span></h1><p>Рассчитайте потребность. Проверьте рекомендации. Утвердите заказ.</p></div>
+            <div class="heading-stamp"><span aria-hidden="true">↗</span><div>Понятный расчёт<strong>Взвешенное решение</strong></div></div>
+          </section>
+          <ol class="steps" aria-label="Этапы планирования"><li id="step-data" class="current"><span>1</span>Данные</li><li id="step-calculate"><span>2</span>Расчёт</li><li id="step-review"><span>3</span>Проверка</li><li id="step-export"><span>4</span>Утверждение и экспорт</li></ol>
+          <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+          <section class="panel data-panel" aria-labelledby="data-title">
+            <div class="section-heading"><div><span class="section-number">01</span><h2 id="data-title">Источник данных</h2></div><span class="section-aside">Все данные остаются в браузере</span></div>
+            <div id="source-picker" class="source-picker">
+              <div class="source-copy"><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7"/></svg></span><div><h3>Начните со своих данных или примера</h3><p>Продажи, остатки и ожидаемые поставки в одном JSON-файле.</p></div></div>
+              <div class="source-actions"><button id="demo-button" class="button button-primary" type="button"><span aria-hidden="true">✦</span> Демонстрационный набор</button><button id="upload-button" class="button button-secondary" type="button"><span aria-hidden="true">↑</span> Загрузить JSON</button><input id="file-input" type="file" accept=".json,application/json" hidden aria-label="Файл обезличенных данных JSON" /></div>
+            </div>
+            <div id="dataset-info" class="dataset-info" hidden></div>
+            <div class="source-footer"><span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 6 3v5c0 4-6 7-6 7s-6-3-6-7V5z"/><path d="m7 9 2 2 4-4"/></svg>Загружайте только обезличенные данные. Внешние сервисы не используются.</span><button id="download-demo" class="text-button" type="button">Скачать пример JSON <span aria-hidden="true">↓</span></button></div>
+          </section>
+          <section class="panel settings-panel" aria-labelledby="settings-title">
+            <div class="section-heading"><div><span class="section-number">02</span><h2 id="settings-title">Параметры расчёта</h2></div><span class="section-aside" id="asof-label">Сначала выберите источник данных</span></div>
+            <form id="calculation-form">
+              <fieldset id="settings-fields" disabled><legend class="sr-only">Фильтры и прогноз роста</legend><div class="settings-grid">
+                <div class="field"><label for="warehouse">Склад</label><select id="warehouse"><option value="all">Все склады</option></select></div>
+                <div class="field"><label for="category">Категория</label><select id="category"><option value="all">Все категории</option></select></div>
+                <div class="field"><label for="growth-mode">Прогноз прироста</label><select id="growth-mode"><option value="auto">Автоматически из истории</option><option value="manual">Задать вручную</option></select></div>
+                <div class="field growth-field"><label for="growth-percent">Годовой прирост, %</label><div class="input-with-unit"><input id="growth-percent" type="number" min="-90" max="200" step="0.1" value="12" disabled /><span>%</span></div></div>
+              </div></fieldset>
+              <div class="calculate-footer"><p id="growth-help"><span aria-hidden="true">i</span>Индексы сезонности берутся из категории, устойчивый рост — из истории. Ручной прогноз заменяет исторический рост.</p><button id="calculate-button" class="button button-primary" type="submit" disabled>Рассчитать потребность <span aria-hidden="true">↗</span></button></div>
+            </form>
+          </section>
+          <section id="empty-results" class="empty-results" aria-labelledby="empty-title"><div class="empty-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M11 36V24m13 12V12m13 24V19"/><path d="M6 41h36"/></svg></div><h2 id="empty-title">Здесь появится ваш план закупок</h2><p>Выберите данные и запустите расчёт — рекомендации будут сгруппированы по поставщикам.</p><div class="empty-tags"><span>Сезонность и рост</span><span>Восстановление спроса</span><span>Контроль выбросов</span></div></section>
+          <section id="results" class="results" aria-labelledby="results-title" hidden></section>
+          <footer class="page-footer"><span>Электрокомплект × HackAlem AI</span><span>Рекомендации проверяет менеджер · Автоматической отправки заказов нет</span></footer>
+        </main>
+        <div id="review-bar" class="review-bar" hidden></div>
+      </div>
+    </div>
+    <noscript><p class="noscript">Для работы приложения включите JavaScript в браузере.</p></noscript>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

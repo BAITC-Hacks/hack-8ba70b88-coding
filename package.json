@@ -1,0 +1,13 @@
+{
+  "name": "elektrokomplekt-hackalem-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Локальный помощник планирования закупок — HackAlem AI",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "demo": "node scripts/generate-demo.js"
+  }
+}

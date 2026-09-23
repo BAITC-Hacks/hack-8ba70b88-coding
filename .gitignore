@@ -1,4 +1,16 @@
 node_modules/
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+*.csv
+*.tsv
+otchet-importa-*.json
+istochniki-*.json
+private-data/
+data/
+import-reports/
+local-config.json
 .env
 .env.*
 !.env.example

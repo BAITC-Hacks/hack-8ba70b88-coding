@@ -37,28 +37,76 @@
           <ol class="steps" aria-label="Этапы планирования"><li id="step-data" class="current"><span>1</span>Данные</li><li id="step-calculate"><span>2</span>Расчёт</li><li id="step-review"><span>3</span>Проверка</li><li id="step-export"><span>4</span>Утверждение и экспорт</li></ol>
           <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
           <section class="panel data-panel" aria-labelledby="data-title">
-            <div class="section-heading"><div><span class="section-number">01</span><h2 id="data-title">Источник данных</h2></div><span class="section-aside">Все данные остаются в браузере</span></div>
+            <div class="section-heading"><div><span class="section-number">01</span><h2 id="data-title">Источник данных</h2></div><span class="section-aside">Обработка только на этом компьютере</span></div>
+            <div class="excel-import">
+              <div class="import-heading"><div><h3>Excel поставщиков</h3><p>Шесть типов источников на каждого поставщика. Исходные файлы читаются локально и не изменяются.</p></div><span class="badge badge-demo">SYSTEMELECTRIC + ИЭК</span></div>
+              <div class="import-paths">
+                <div class="field"><label for="systeme-path">Папка SystemElectric</label><input id="systeme-path" type="text" spellcheck="false" placeholder="Полный путь к папке с шестью Excel-файлами" /></div>
+                <div class="field"><label for="iek-path">Папка ИЭК</label><input id="iek-path" type="text" spellcheck="false" placeholder="Полный путь к папке с шестью Excel-файлами" /></div>
+              </div>
+              <div class="import-actions"><button id="import-excel-button" class="button button-primary" type="button">Импортировать Excel двух поставщиков</button><p>Для одного поставщика оставьте второе поле пустым. Данные не передаются внешним сервисам.</p></div>
+            </div>
             <div id="source-picker" class="source-picker">
               <div class="source-copy"><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7"/></svg></span><div><h3>Начните со своих данных или примера</h3><p>Продажи, остатки и ожидаемые поставки в одном JSON-файле.</p></div></div>
               <div class="source-actions"><button id="demo-button" class="button button-primary" type="button"><span aria-hidden="true">✦</span> Демонстрационный набор</button><button id="upload-button" class="button button-secondary" type="button"><span aria-hidden="true">↑</span> Загрузить JSON</button><input id="file-input" type="file" accept=".json,application/json" hidden aria-label="Файл обезличенных данных JSON" /></div>
             </div>
             <div id="dataset-info" class="dataset-info" hidden></div>
+            <details id="import-report" class="import-report" hidden><summary>Отчёт импорта: файлы, периоды и качество данных</summary><div id="import-report-content"></div></details>
             <div class="source-footer"><span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 6 3v5c0 4-6 7-6 7s-6-3-6-7V5z"/><path d="m7 9 2 2 4-4"/></svg>Загружайте только обезличенные данные. Внешние сервисы не используются.</span><button id="download-demo" class="text-button" type="button">Скачать пример JSON <span aria-hidden="true">↓</span></button></div>
           </section>
           <section class="panel settings-panel" aria-labelledby="settings-title">
             <div class="section-heading"><div><span class="section-number">02</span><h2 id="settings-title">Параметры расчёта</h2></div><span class="section-aside" id="asof-label">Сначала выберите источник данных</span></div>
             <form id="calculation-form">
               <fieldset id="settings-fields" disabled><legend class="sr-only">Фильтры и прогноз роста</legend><div class="settings-grid">
+                <div class="field" id="supplier-field" hidden><label for="supplier">Поставщик</label><select id="supplier"><option value="all">Все поставщики</option><option value="systeme">SystemElectric</option><option value="iek">ИЭК</option></select></div>
                 <div class="field"><label for="warehouse">Склад</label><select id="warehouse"><option value="all">Все склады</option></select></div>
                 <div class="field"><label for="category">Категория</label><select id="category"><option value="all">Все категории</option></select></div>
                 <div class="field"><label for="growth-mode">Прогноз прироста</label><select id="growth-mode"><option value="auto">Автоматически из истории</option><option value="manual">Задать вручную</option></select></div>
                 <div class="field growth-field"><label for="growth-percent">Годовой прирост, %</label><div class="input-with-unit"><input id="growth-percent" type="number" min="-90" max="200" step="0.1" value="12" disabled /><span>%</span></div></div>
+              </div>
+              <div id="real-settings" class="real-settings" hidden>
+                <p class="settings-intro">В источниках нет подтверждённого срока нового заказа и точных дней отсутствия товара. Укажите допущения. Неизвестные значения остаются неизвестными; источник и дата видны в каждой рекомендации.</p>
+                <div class="settings-grid real-settings-grid">
+                  <div class="field"><label for="lead-days">Срок нового заказа, дней</label><input id="lead-days" type="number" min="0" max="730" value="30" step="1" /></div>
+                  <div class="field"><label for="review-days">Период между заказами, дней</label><input id="review-days" type="number" min="1" max="365" value="14" step="1" /></div>
+                  <div class="field"><label for="safety-days">Страховой запас, дней спроса</label><input id="safety-days" type="number" min="0" max="365" value="7" step="1" /></div>
+                  <div class="field"><label for="lookback-months">История для базового спроса, месяцев</label><input id="lookback-months" type="number" min="1" max="36" value="12" step="1" /></div>
+                  <div class="field"><label for="seasonality-mode">Сезонность</label><select id="seasonality-mode"><option value="supplier">Индексы поставщика (допущение)</option><option value="none">Без сезонности</option></select></div>
+                  <div class="field"><label for="sales-source">Источник базового спроса</label><select id="sales-source"><option value="monthly">Ежемесячные продажи</option><option value="detail">Подробная динамика продаж</option></select></div>
+                  <div class="field"><label for="stock-mode">Остатки</label><select id="stock-mode"><option value="latest">Последний доступный срез</option><option value="none">Не использовать срезы</option></select></div>
+                  <div class="field"><label for="stock-snapshot-date">Дата недатированного остатка (допущение)</label><input id="stock-snapshot-date" type="date" /></div>
+                  <div class="field"><label for="unknown-stock">Если остаток неизвестен</label><select id="unknown-stock"><option value="block">Не рассчитывать количество</option><option value="zero-assumption">Считать нулём (допущение)</option></select></div>
+                  <div class="field"><label for="monthly-blanks">Пустые месячные ячейки</label><select id="monthly-blanks"><option value="unknown">Неизвестно</option><option value="zero-assumption">Нулевые продажи (допущение)</option></select></div>
+                  <div class="field"><label for="fallback-pack">Кратность при отсутствии в источнике</label><input id="fallback-pack" type="number" min="1" max="1000000" value="1" step="1" /></div>
+                  <div class="field"><label for="fallback-moq">Минимальная партия при отсутствии</label><input id="fallback-moq" type="number" min="0" max="1000000" value="0" step="1" /></div>
+                  <div class="field"><label for="eta-year">Год поступления, если указан только день/месяц</label><input id="eta-year" type="number" min="2000" max="2100" value="2026" step="1" /></div>
+                </div>
+                <div class="assumption-checks">
+                  <label><input id="allow-stale-stock" type="checkbox" /> Разрешить расчёт по устаревшему остатку с предупреждением</label>
+                  <label><input id="confirm-detail-scope" type="checkbox" /> Подтверждаю полноту подробных продаж для выбранного склада и периода</label>
+                  <label><input id="include-partial-month" type="checkbox" /> Учитывать незавершённый месяц с поправкой на прошедшие дни</label>
+                </div>
+                <p class="settings-intro">Минимальная партия и кратность — разные ограничения. Значения 0 и 1 выше применяются только при отсутствии данных и являются вашими допущениями. Общий остаток не распределяется между складами. Месячные снимки не позволяют вычислить точные дни дефицита. Дата существующей поставки не заменяет срок нового заказа.</p>
+                <label class="assumptions-confirm"><input id="assumptions-confirmed" type="checkbox" /> Я проверил(а) допущения выше, включая общую сезонность поставщика и даты недатированных срезов, и принимаю их для этого расчёта.</label>
               </div></fieldset>
               <div class="calculate-footer"><p id="growth-help"><span aria-hidden="true">i</span>Индексы сезонности берутся из категории, устойчивый рост — из истории. Ручной прогноз заменяет исторический рост.</p><button id="calculate-button" class="button button-primary" type="submit" disabled>Рассчитать потребность <span aria-hidden="true">↗</span></button></div>
             </form>
           </section>
           <section id="empty-results" class="empty-results" aria-labelledby="empty-title"><div class="empty-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M11 36V24m13 12V12m13 24V19"/><path d="M6 41h36"/></svg></div><h2 id="empty-title">Здесь появится ваш план закупок</h2><p>Выберите данные и запустите расчёт — рекомендации будут сгруппированы по поставщикам.</p><div class="empty-tags"><span>Сезонность и рост</span><span>Восстановление спроса</span><span>Контроль выбросов</span></div></section>
           <section id="results" class="results" aria-labelledby="results-title" hidden></section>
+          <section id="ai-analyst" class="ai-analyst" aria-labelledby="ai-title">
+            <div class="ai-heading"><div><span class="eyebrow">ПОМОЩЬ МЕНЕДЖЕРУ</span><h2 id="ai-title">AI-аналитик закупок</h2><p>Объясняет готовый расчёт. Количества остаются под контролем расчётного алгоритма и менеджера.</p></div><span class="badge">OpenAI Responses API</span></div>
+            <p id="ai-config-state" class="ai-state" role="status" aria-live="polite">Проверяем настройку AI-аналитика…</p>
+            <div class="ai-form">
+              <div class="field"><label for="ai-selected-item">Позиция для отдельного анализа (необязательно)</label><select id="ai-selected-item" disabled><option value="">Без отдельной позиции</option></select></div>
+              <div class="field"><label for="ai-question">Вопрос менеджера</label><textarea id="ai-question" rows="3" maxlength="1200" placeholder="Например: какие товары требуют действий сегодня и каких данных не хватает?" disabled></textarea></div>
+            </div>
+            <details id="ai-disclosure" class="ai-disclosure" open><summary>Проверьте состав сведений перед отправкой</summary><p>Будут отправлены сводные числа плана, до 5 приоритетных строк, выбранная позиция (если указана), источники этих позиций и ваш вопрос. Исходные Excel и полный список товаров не отправляются.</p><pre id="ai-data-preview">Сначала выполните расчёт; здесь появится точное содержимое запроса.</pre></details>
+            <label id="ai-consent-label" class="ai-consent" hidden><input id="ai-consent" type="checkbox" /> Я просмотрел(а) сведения выше и разрешаю отправить эти бизнес-данные OpenAI для AI-анализа.</label>
+            <div class="ai-actions"><button id="ai-analyze" class="button button-primary" type="button" disabled>Анализировать текущий план</button><span>Ответы справочные. AI не меняет расчёт, не утверждает план и не отправляет заказы.</span></div>
+            <div id="ai-result-state" class="ai-result-state" role="status" aria-live="polite" hidden></div>
+            <pre id="ai-answer" class="ai-answer" hidden></pre>
+          </section>
           <footer class="page-footer"><span>Электрокомплект × HackAlem AI</span><span>Рекомендации проверяет менеджер · Автоматической отправки заказов нет</span></footer>
         </main>
         <div id="review-bar" class="review-bar" hidden></div>
